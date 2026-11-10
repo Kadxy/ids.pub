@@ -1,0 +1,32 @@
+# ids.pub
+
+> ids.pub keeps a person's public keys at one address, such as https://ids.pub/alice, and serves them as plain text, one key per line, in the format of an OpenSSH authorized_keys file. Groups give a server only some of those keys, at an address of their own, such as https://ids.pub/alice/prod.
+
+ids.pub is open source and runs on Cloudflare. People sign in with GitHub, choose a name, and add keys. Anyone can read an address: it holds public keys only. Names are never reused, so an address always belongs to the person who first took it.
+
+Reading an address:
+
+- `https://ids.pub/<name>` returns every key, one per line, as `<type> <base64> <comment>`. Browsers asking for HTML get a page instead; anything else gets the keys.
+- `https://ids.pub/<name>/<group>` returns only the keys in that group, always as text.
+- Suffixes fix the format whatever the Accept header says: `.keys` (text), `.json` (keys with fingerprints and dates), `.signers` (an allowed signers file for `ssh-keygen -Y verify` and Git, with `<name>@ids.pub` as the signer).
+- An unknown name or group answers 404 with an empty body; a name no longer in use answers 410. A private account's addresses answer 404 to everyone.
+- Keys are only served over HTTPS. Over plain HTTP a request for keys answers 400.
+- Responses are never cached (`Cache-Control: no-store`), so a key removed on ids.pub stops being served at once.
+
+Using an address:
+
+- Add keys to a server once: `curl -fsS https://ids.pub/<name> >> ~/.ssh/authorized_keys`
+- Have sshd look the keys up at every login, so a removed key stops working at once: in a `Match User` block in sshd_config, `AuthorizedKeysCommand /usr/bin/curl -fsS --max-time 5 https://ids.pub/<name>` and `AuthorizedKeysCommandUser nobody`.
+- Check fingerprints: `curl -fsS https://ids.pub/<name> | ssh-keygen -lf -`
+- Trust someone's Git commits: `curl -fsS https://ids.pub/<name>.signers >> ~/.ssh/allowed_signers`, then `git config gpg.ssh.allowedSignersFile ~/.ssh/allowed_signers`.
+- Encrypt a file to someone with age: `curl -fsS https://ids.pub/<name> | age -R - -o file.age file` (age uses the Ed25519 and RSA keys and skips the rest).
+
+## Pages
+
+- [Home](https://ids.pub/index.md): what ids.pub is, in a few lines.
+
+## Optional
+
+- [Source code](https://github.com/kadxy/ids.pub): the Worker, the console and the public endpoint.
+- [sshd_config(5): AuthorizedKeysCommand](https://man.openbsd.org/sshd_config.5#AuthorizedKeysCommand): how sshd runs the lookup.
+- [ssh-keygen(1): allowed signers](https://man.openbsd.org/ssh-keygen.1#ALLOWED_SIGNERS): the format of the .signers address.

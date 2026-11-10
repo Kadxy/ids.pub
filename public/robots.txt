@@ -1,0 +1,7 @@
+# ids.pub: a home for your public keys.
+# Everything may be crawled except sign-in, which only sends you on to GitHub.
+
+User-agent: *
+Disallow: /auth/
+
+Sitemap: https://ids.pub/sitemap.xml

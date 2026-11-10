@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ids-pub",
+  "main": "./workers/app.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Logs and invocation logs, kept in the Workers dashboard. Traces are off.
+  "observability": {
+    "logs": { "enabled": true, "invocation_logs": true },
+    "traces": { "enabled": false }
+  },
+  "upload_source_maps": true,
+  // The Worker answers at ids.pub itself; Cloudflare manages the DNS record for it. No
+  // workers.dev address or preview URLs: logging in only works at APP_ORIGIN anyway.
+  "routes": [{ "pattern": "ids.pub", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
+  // Production values. `bun dev` overrides them from .dev.vars.
+  // The one secret, set with `wrangler secret put GITHUB_CLIENT_SECRET`. Declared here so types are
+  // generated without a .dev.vars, and so a deploy fails if it isn't set.
+  "secrets": { "required": ["GITHUB_CLIENT_SECRET"] },
+  "vars": {
+    "APP_ORIGIN": "https://ids.pub",
+    "GITHUB_CLIENT_ID": "Ov23liIGNODmdC3Bjcck"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ids-pub",
+      "database_id": "9b3fd29b-4202-4f7a-a189-690f09b247e2",
+      "migrations_dir": "migrations",
+      // One database for development and production: `bun dev` reads and writes it too. To run
+      // your own, put your database's id here, and your own domain, APP_ORIGIN and client id above.
+      "remote": true
+    }
+  ]
+}

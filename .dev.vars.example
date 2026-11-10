@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local development.
+APP_ORIGIN=http://localhost:3201
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=

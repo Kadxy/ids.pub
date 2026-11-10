@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build and Cloudflare local state
+build/
+.react-router/
+.wrangler/
+worker-configuration.d.ts
+
+# Local secrets: only the example is tracked
+.env
+.env.*
+.dev.vars*
+!.dev.vars.example
+*.pem
+
+# Logs and caches
+*.log
+*.tsbuildinfo
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
